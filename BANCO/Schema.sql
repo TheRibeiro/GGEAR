@@ -1,54 +1,66 @@
 -- =====================================
--- Schema do Projeto A3 - PostgreSQL
+-- Schema do Projeto A3 - PostgreSQL (versão com CEP)
 -- =====================================
+
 CREATE DATABASE projetoa3;
 
 \c projetoa3
--- 1. Tabela de Bancos
+
+-- 1. Tabela de Usuários (para login/registro)
+CREATE TABLE usuarios (
+    id_usuario SERIAL PRIMARY KEY,                     -- ID interno do usuário
+    nome VARCHAR(100) NOT NULL,                        -- nome completo
+    cpf VARCHAR(14) UNIQUE NOT NULL,                   -- CPF (será usado no login)
+    data_nascimento DATE NOT NULL,                     -- data de nascimento
+    senha VARCHAR(255) NOT NULL,                       -- senha (de preferência, criptografada)
+    cep VARCHAR(9) NOT NULL,                           -- CEP onde mora (ex: 12345-678)
+    data_registro TIMESTAMP DEFAULT NOW()              -- data do registro
+);
+
+-- 2. Tabela de Bancos
 CREATE TABLE bancos (
-    id_banco SERIAL PRIMARY KEY, -- id padrão de cada banco 
-    nome_banco VARCHAR(100) NOT NULL, -- nome do banco 
-    cnpj VARCHAR(20), -- cnpj banco
-    site_oficial VARCHAR(200), -- Site mais utilizado/official do banco
-    descricao TEXT, -- possiveis informações adicionais do  banco.
-    data_cadastro TIMESTAMP DEFAULT NOW() -- data do registro do banco 
+    id_banco SERIAL PRIMARY KEY,
+    nome_banco VARCHAR(100) NOT NULL,
+    cnpj VARCHAR(20),
+    site_oficial VARCHAR(200),
+    descricao TEXT,
+    data_cadastro TIMESTAMP DEFAULT NOW()
 );
 
--- 2. Tabela de Contatos Oficiais
+-- 3. Tabela de Contatos Oficiais
 CREATE TABLE contatos_oficiais (
-    id_contato SERIAL PRIMARY KEY, -- id do contato
-    id_banco INT NOT NULL REFERENCES bancos(id_banco) ON DELETE CASCADE, -- id do banco referenciado da tabela Bancos
-    tipo_contato VARCHAR(50) NOT NULL, -- telefone, email, site
-    valor_contato VARCHAR(150) NOT NULL,-- o conteudo do contato
-    observacao TEXT,-- campo para informações adicionais
-    verificado BOOLEAN DEFAULT TRUE, -- validação se o contato é realmente official
-    data_validacao TIMESTAMP DEFAULT NOW() -- data que o contato foi validado
+    id_contato SERIAL PRIMARY KEY,
+    id_banco INT NOT NULL REFERENCES bancos(id_banco) ON DELETE CASCADE,
+    tipo_contato VARCHAR(50) NOT NULL,
+    valor_contato VARCHAR(150) NOT NULL,
+    observacao TEXT,
+    verificado BOOLEAN DEFAULT TRUE,
+    data_validacao TIMESTAMP DEFAULT NOW()
 );
 
--- 3. Tabela de Tipos de Golpes
+-- 4. Tabela de Tipos de Golpe
 CREATE TABLE tipos_golpe (
-    id_tipo SERIAL PRIMARY KEY, -- id especifico para cada golpe 
-    nome_tipo VARCHAR(100) NOT NULL, -- Nome do golpe ex: "Falsa central de atendimento"
-    descricao TEXT -- descrição do golpe
+    id_tipo SERIAL PRIMARY KEY,
+    nome_tipo VARCHAR(100) NOT NULL,
+    descricao TEXT
 );
 
--- 4. Tabela de Denúncias
+-- 5. Tabela de Denúncias
 CREATE TABLE denuncias (
-    id_denuncia SERIAL PRIMARY KEY, -- id da denuncia 
-    id_tipo INT REFERENCES tipos_golpe(id_tipo), -- ID do tipo do golpe, referenciado da tabela de tipos de golpe
-    id_banco INT REFERENCES bancos(id_banco), -- ID do banco que o golpista se passou
-    contato_denunciado VARCHAR(150) NOT NULL, -- número, email, site
-    descricao TEXT, -- descrição do golpe em si
-    data_denuncia TIMESTAMP DEFAULT NOW(), -- data que foi denunciada 
-
+    id_denuncia SERIAL PRIMARY KEY,
+    id_usuario INT REFERENCES usuarios(id_usuario) ON DELETE CASCADE, -- quem fez a denúncia
+    id_tipo INT REFERENCES tipos_golpe(id_tipo),
+    id_banco INT REFERENCES bancos(id_banco),
+    contato_denunciado VARCHAR(150) NOT NULL,
+    descricao TEXT,
+    data_denuncia TIMESTAMP DEFAULT NOW()
 );
 
--- 5. Tabela de Consultas
+-- 6. Tabela de Consultas
 CREATE TABLE consultas (
-    id_consulta SERIAL PRIMARY KEY, -- id da consulta
-    termo_pesquisado VARCHAR(150) NOT NULL, --email/numero/site pesquisado
-    resultado_encontrado VARCHAR(50), -- oficial, suspeito, inexistente
-    data_consulta TIMESTAMP DEFAULT NOW(), -- data da consulta realizada
-
+    id_consulta SERIAL PRIMARY KEY,
+    id_usuario INT REFERENCES usuarios(id_usuario) ON DELETE SET NULL, -- quem fez a consulta (opcional)
+    termo_pesquisado VARCHAR(150) NOT NULL,
+    resultado_encontrado VARCHAR(50),
+    data_consulta TIMESTAMP DEFAULT NOW()
 );
-
