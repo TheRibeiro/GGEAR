@@ -2,7 +2,7 @@ import '../styles/FormLogin.css'
 
 import { useNavigate } from 'react-router-dom'
 
-function App() {
+function Login() {
 
   const navigate = useNavigate()
 
@@ -16,8 +16,8 @@ function App() {
 
   return (
     <>
-      <main>
-        <form className='formLogin' onSubmit={handleSubmit}>
+      <main> 
+        <form className='formLogin' onSubmit={handleSubmit}> {/*  */}
           <p className='formLogin_titulo'>Entre na sua conta</p>
           <div className='formInputs'>
             <input type="varchar" placeholder='Insira o seu CPF' />
@@ -39,4 +39,4 @@ function App() {
   )
 }
 
-export default App
+export default Login
